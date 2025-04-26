@@ -1,0 +1,9 @@
+{
+  "listener": "tip",
+  "event": {
+    "name": "TestDonator",
+    "amount": 5.00,
+    "message": "ทดสอบ Alert ทายใจ!",
+    "currency": "THB"
+  }
+}

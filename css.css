@@ -1,0 +1,65 @@
+#alert-container {
+  /* --- เริ่มต้นซ่อน Alert --- */
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
+  /* --- ปรับแต่งสไตล์พื้นฐานตามต้องการ --- */
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+  font-family: sans-serif;
+  width: 400px; /* ปรับขนาดตามต้องการ */
+}
+
+#alert-container.visible {
+  opacity: 1;
+}
+
+#donator-info {
+  font-size: 0.9em;
+  margin-bottom: 10px;
+  color: #cccccc;
+}
+
+#donator-name, #donation-amount {
+    font-weight: bold;
+    color: #4CAF50; /* สีเขียว หรือสีอื่น ๆ */
+}
+
+
+#question-text {
+  font-size: 1.5em;
+  margin-bottom: 15px;
+  font-weight: bold;
+}
+
+#image-choices {
+  display: flex;
+  justify-content: space-around; /* จัดวางรูปภาพ */
+  align-items: center;
+}
+
+.choice {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.choice img {
+  max-width: 100px; /* ปรับขนาดรูปภาพ */
+  max-height: 100px;
+  border: 2px solid white;
+  border-radius: 5px;
+  margin-bottom: 5px;
+}
+
+.choice span {
+    font-size: 1.1em;
+    font-weight: bold;
+}
+
+/* --- คลาสสำหรับซ่อน/แสดง --- */
+.hidden {
+  display: none; /* หรือ visibility: hidden; opacity: 0; */
+}
