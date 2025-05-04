@@ -1,16 +1,25 @@
 <div id="alert-container" class="hidden">
-  <div id="donator-info">
-    <span id="donator-name"></span> donated <span id="donation-amount"></span>!
+  <div id="redeemer-info">
+    <span id="redeemer-name"></span> แลกใช้ <span id="reward-name"></span>!
   </div>
   <div id="question-text"></div>
   <div id="image-choices">
     <div class="choice">
       <img id="image-1" src="" alt="Choice 1">
       <span id="choice-1-text"></span>
+      <div class="vote-count" id="vote-count-1">0</div>
     </div>
     <div class="choice">
       <img id="image-2" src="" alt="Choice 2">
       <span id="choice-2-text"></span>
+      <div class="vote-count" id="vote-count-2">0</div>
     </div>
+  </div>
+  <div id="timer-container">
+    <div id="timer-text">เหลือเวลา: <span id="timer">0</span> วินาที</div>
+    <div id="vote-instruction">พิมพ์ 1 หรือ 2 ในแชทเพื่อโหวต!</div>
+  </div>
+  <div id="result-container" class="hidden">
+    <div id="result-text">ผลโหวต: <span id="winner-text"></span></div>
   </div>
 </div>

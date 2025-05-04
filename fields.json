@@ -1,10 +1,23 @@
 {
   "alertDuration": {
     "type": "number",
-    "label": "ระยะเวลาแสดงผล Alert (วินาที)",
-    "value": 10,
-    "min": 1,
+    "label": "ระยะเวลาแสดงผลคำถาม (วินาที)",
+    "value": 30,
+    "min": 10,
+    "max": 120,
+    "step": 5
+  },
+  "votingDuration": {
+    "type": "number",
+    "label": "ระยะเวลาในการโหวต (วินาที)",
+    "value": 20,
+    "min": 5,
     "max": 60,
-    "step": 1
+    "step": 5
+  },
+  "rewardName": {
+    "type": "text",
+    "label": "ชื่อรางวัล Channel Points ที่ใช้",
+    "value": "เกมทายใจ"
   }
 }
