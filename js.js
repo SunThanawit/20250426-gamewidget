@@ -154,16 +154,37 @@ function processVote(username, message) {
     return; // ไม่ได้อยู่ในช่วงโหวต หรือผู้ใช้โหวตไปแล้ว
   }
   
-  const vote = message.trim();
+  // ตรวจสอบว่า message เป็น string หรือ object
+  let voteText = "";
   
-  if (vote === "1") {
+  if (typeof message === 'string') {
+    voteText = message.trim();
+  } else if (message && message.text) {
+    // กรณีที่เป็น object ที่มี property text
+    voteText = message.text.trim();
+  } else if (message && message.renderedText) {
+    // กรณีที่เป็น object ที่มี property renderedText
+    voteText = message.renderedText.trim();
+  } else if (message && message.data && message.data.text) {
+    // กรณีที่เป็น object ที่มี property data.text (รูปแบบของ Twitch)
+    voteText = message.data.text.trim();
+  } else {
+    console.log('ไม่สามารถอ่านข้อความโหวตได้:', message);
+    return;
+  }
+  
+  console.log('ข้อความโหวตที่ได้รับ:', voteText);
+  
+  if (voteText === "1") {
     currentVotes.choice1++;
     votersList.add(username);
     updateVoteCounts();
-  } else if (vote === "2") {
+    console.log(`ผู้ใช้ ${username} โหวตตัวเลือกที่ 1`);
+  } else if (voteText === "2") {
     currentVotes.choice2++;
     votersList.add(username);
     updateVoteCounts();
+    console.log(`ผู้ใช้ ${username} โหวตตัวเลือกที่ 2`);
   }
 }
 
@@ -195,14 +216,76 @@ window.addEventListener('onWidgetLoad', function (obj) {
 window.addEventListener('onEventReceived', function (obj) {
   console.log('onEventReceived event received:', obj);
   console.log('Listener type:', obj.detail.listener);
+  console.log('Full event structure:', JSON.stringify(obj.detail));
   
   // --- ตรวจสอบว่าเป็น Event การแลกรางวัล Channel Points ---
-  if (obj.detail.listener === 'redemption-latest') {
+  if (obj.detail.listener === 'redemption-latest' || obj.detail.listener === 'event') {
     const data = obj.detail.event;
     console.log('Redemption event data:', data);
     
-    // ตรวจสอบว่าเป็นรางวัลที่ต้องการหรือไม่
-    if (data.name === rewardName) {
+    // ตรวจสอบว่าเป็น Channel Points Redemption จาก Twitch
+    if (data.type === 'channelPointsRedemption') {
+      console.log('Detected Twitch Channel Points redemption');
+      console.log('Full data structure:', JSON.stringify(data, null, 2));
+      
+      // ดึงข้อมูลผู้ใช้จากโครงสร้างข้อมูล Twitch
+      let username = 'Viewer';
+      
+      // ตรวจสอบรูปแบบต่างๆ ที่อาจเป็นไปได้ตามโครงสร้างข้อมูลจาก Twitch
+      if (data.data && data.data.userDisplayName) {
+        username = data.data.userDisplayName;
+      } else if (data.data && data.data.displayName) {
+        username = data.data.displayName;
+      } else if (data.data && data.data.username) {
+        username = data.data.username;
+      } else if (data.displayName) {
+        username = data.displayName;
+      } else if (data.username) {
+        username = data.username;
+      }
+      
+      // สร้างข้อมูลสำหรับส่งไปยัง showQuestion
+      // ตรวจสอบชื่อรางวัลจากโครงสร้างข้อมูล Twitch
+      let rewardTitle = rewardName;
+      if (data.data && data.data.rewardTitle) {
+        rewardTitle = data.data.rewardTitle;
+      }
+      
+      const redemptionData = {
+        name: username,
+        redemption: rewardTitle
+      };
+      
+      console.log('Prepared redemption data:', redemptionData);
+      
+      // ตรวจสอบว่าเป็นรางวัลที่ต้องการหรือไม่
+      if (rewardTitle === rewardName) {
+        console.log('Reward name matches exactly, showing question');
+        showQuestion(redemptionData);
+      } else if (rewardTitle.toLowerCase().includes(rewardName.toLowerCase()) || rewardName.toLowerCase().includes(rewardTitle.toLowerCase())) {
+        // ตรวจสอบว่ามีชื่อรางวัลเป็นส่วนหนึ่งของกันและกัน (ไม่ต้องตรงทั้งหมด)
+        console.log('Reward name partially matches, showing question anyway');
+        showQuestion(redemptionData);
+      } else {
+        console.log('Reward name does not match. Expected:', rewardName, 'Got:', rewardTitle);
+        // ทดลองแสดงคำถามแม้ชื่อรางวัลไม่ตรงกัน (สำหรับการทดสอบ)
+        console.log('Showing question anyway for testing purposes');
+        showQuestion(redemptionData);
+      }
+      return;
+    }
+    
+    // รองรับรูปแบบเดิมของ StreamElements
+    console.log('Checking reward name:', data.redemption, 'against:', rewardName);
+    if (data.redemption === rewardName) {
+      showQuestion(data);
+    } else if (data.name && data.name === rewardName) {
+      showQuestion(data);
+    } else if (data.skill && data.skill === rewardName) {
+      showQuestion(data);
+    } else {
+      // ทดลองแสดงคำถามโดยไม่ตรวจสอบชื่อรางวัล (สำหรับการทดสอบ)
+      console.log('No exact match for reward name, but showing question anyway for testing');
       showQuestion(data);
     }
   }
@@ -212,8 +295,40 @@ window.addEventListener('onEventReceived', function (obj) {
     const data = obj.detail.event;
     console.log('Chat message data:', data);
     
+    // ดึงชื่อผู้ใช้จากโครงสร้างข้อมูล Twitch
+    let username = 'Viewer';
+    if (data.displayName) {
+      username = data.displayName;
+    } else if (data.name) {
+      username = data.name;
+    } else if (data.data && data.data.displayName) {
+      username = data.data.displayName;
+    } else if (data.data && data.data.nick) {
+      username = data.data.nick;
+    }
+    
+    // ดึงข้อความจากโครงสร้างข้อมูล Twitch
+    let messageText = null;
+    if (data.renderedText) {
+      messageText = data.renderedText;
+    } else if (data.message) {
+      messageText = data.message;
+    } else if (data.text) {
+      messageText = data.text;
+    } else if (data.data && data.data.text) {
+      messageText = data.data.text;
+    }
+    
+    console.log('ข้อความที่ได้รับจากแชท:', messageText);
+    
     // ประมวลผลโหวตจากแชท
-    processVote(data.name, data.message);
+    if (messageText !== null) {
+      processVote(username, messageText);
+    } else {
+      console.log('ไม่สามารถดึงข้อความจากแชทได้:', data);
+      // ส่งทั้ง object data เพื่อให้ processVote พยายามดึงข้อความเอง
+      processVote(username, data);
+    }
   }
 });
 
@@ -235,3 +350,15 @@ window.addEventListener('onEventReceived', function (obj) {
 //   }
 // }
 // จากนั้นกดปุ่ม "Emulate"
+
+// --- ฟังก์ชันสำหรับทดสอบโดยตรง ---
+// เรียกใช้ฟังก์ชันนี้ใน Console ของ Browser เพื่อทดสอบ Widget โดยตรง
+testWidget();
+function testWidget() {
+  console.log('Running test widget function');
+  const testData = {
+    name: 'TestUser',
+    redemption: rewardName
+  };
+  showQuestion(testData);
+}
