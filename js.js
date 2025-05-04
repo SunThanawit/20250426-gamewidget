@@ -24,7 +24,7 @@ const questions = [
 let alertTimeout; // สำหรับเก็บ timeout ID ของการแสดงผล
 let timerInterval; // สำหรับเก็บ interval ID ของตัวนับเวลา
 let widgetAlertDuration = 30000; // ค่าเริ่มต้น (30 วินาที) สำหรับการแสดงผลทั้งหมด
-let votingDuration = 20000; // ค่าเริ่มต้น (20 วินาที) สำหรับการโหวต
+let votingDuration = 60000; // ค่าเริ่มต้น (60 วินาที) สำหรับการโหวต
 let rewardName = "เกมทายใจ"; // ชื่อรางวัล Channel Points ที่ใช้
 
 // --- ตัวแปรสำหรับการนับคะแนนโหวต ---
@@ -353,7 +353,7 @@ window.addEventListener('onEventReceived', function (obj) {
 
 // --- ฟังก์ชันสำหรับทดสอบโดยตรง ---
 // เรียกใช้ฟังก์ชันนี้ใน Console ของ Browser เพื่อทดสอบ Widget โดยตรง
-testWidget();
+//testWidget();
 function testWidget() {
   console.log('Running test widget function');
   const testData = {
